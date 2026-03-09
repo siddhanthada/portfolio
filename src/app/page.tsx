@@ -31,9 +31,11 @@ export default function Home() {
             spacer) PLUS 131 px upward, so it spans from page y=0 to exactly the
             top edge of the Social Proof bar. pointer-events:none — decorative only. */}
         <AuroraBackground
-          className="absolute left-0 w-full pointer-events-none"
-          style={{ top: "-131px", height: "calc(100% + 131px)", zIndex: 0 }}
-        />
+  className="absolute left-0 w-full pointer-events-none"
+  style={{ top: "-131px", height: "calc(100% + 131px)", zIndex: 0 }}
+>
+  <></>
+</AuroraBackground>
 
         {/* Hero content: relative z-1 so it sits above the aurora */}
         <div className="relative" style={{ zIndex: 1 }}>
