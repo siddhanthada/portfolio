@@ -1,0 +1,276 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* dark: variant → activates when [data-theme="dark"] is on any ancestor */
+@custom-variant dark (&:is([data-theme="dark"] *));
+
+/* ─── Light theme (default) ────────────────────────────────────────────── */
+:root {
+  /* ── Portfolio theme tokens ── */
+  --bg-primary:          #FFFFFF;
+  --bg-secondary:        #F3F4F6;
+  --surface-card:        #FFFFFF;
+  --surface-subtle:      #EFEFEB;
+
+  --accent-indigo:       #4F46E5;
+  --accent-indigo-hover: #4338CA;
+  --accent-indigo-soft:  #EEF2FF;
+  --accent-amber:        #D97706;
+  --accent-amber-soft:   #FEF3C7;
+  --accent-slate:        #3C4A5A;
+  --accent-slate-soft:   #EDF1F4;
+
+  --text-primary:        #1C1C1C;
+  --text-secondary:      #555550;
+  --text-tertiary:       #777770;
+  --text-disabled:       #A0A09A;
+  --text-cta:            #FFFFFF;
+
+  --border-primary:      #D3D3D3;
+
+  /* ── Navbar ── */
+  --navbar-scrolled-bg:     rgba(255, 255, 255, 0.88);
+  /* Nav link rest color (non-hovered) */
+  --nav-label-rest-color:   var(--text-tertiary);
+  /* Icon button border (theme toggle + a11y) */
+  --navbar-icon-btn-border: var(--border-primary);
+
+  /* ── Aurora color tokens (used inside aurora-background component) ── */
+  --white:       #ffffff;
+  --black:       #000000;
+  --transparent: transparent;
+  --blue-300:    #93c5fd;
+  --blue-400:    #60a5fa;
+  --blue-500:    #3b82f6;
+  --indigo-300:  #a5b4fc;
+  --violet-200:  #ddd6fe;
+
+  /* ── shadcn design-system tokens ── */
+  --background:              oklch(1 0 0);
+  --foreground:              oklch(0.145 0 0);
+  --card:                    oklch(1 0 0);
+  --card-foreground:         oklch(0.145 0 0);
+  --popover:                 oklch(1 0 0);
+  --popover-foreground:      oklch(0.145 0 0);
+  --primary:                 oklch(0.205 0 0);
+  --primary-foreground:      oklch(0.985 0 0);
+  --secondary:               oklch(0.97 0 0);
+  --secondary-foreground:    oklch(0.205 0 0);
+  --muted:                   oklch(0.97 0 0);
+  --muted-foreground:        oklch(0.556 0 0);
+  --accent:                  oklch(0.97 0 0);
+  --accent-foreground:       oklch(0.205 0 0);
+  --destructive:             oklch(0.58 0.22 27);
+  --border:                  oklch(0.922 0 0);
+  --input:                   oklch(0.922 0 0);
+  --ring:                    oklch(0.708 0 0);
+  --chart-1:                 oklch(0.809 0.105 251.813);
+  --chart-2:                 oklch(0.623 0.214 259.815);
+  --chart-3:                 oklch(0.546 0.245 262.881);
+  --chart-4:                 oklch(0.488 0.243 264.376);
+  --chart-5:                 oklch(0.424 0.199 265.638);
+  --radius:                  0.625rem;
+  --sidebar:                 oklch(0.985 0 0);
+  --sidebar-foreground:      oklch(0.145 0 0);
+  --sidebar-primary:         oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent:          oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border:          oklch(0.922 0 0);
+  --sidebar-ring:            oklch(0.708 0 0);
+}
+
+/* ─── Dark theme ────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  /* ── Portfolio theme tokens ── */
+  --bg-primary:          #141412;
+  --bg-secondary:        #1C1C19;
+  --surface-card:        #222220;
+  --surface-subtle:      #1A1A18;
+
+  --accent-indigo:       #6B7FD4;
+  --accent-indigo-hover: #8B9FF4;
+  --accent-indigo-soft:  #1E2340;
+  --accent-amber:        #F59E0B;
+  --accent-amber-soft:   #2A1F0A;
+  --accent-slate:        #8FA3B4;
+  --accent-slate-soft:   #1A2028;
+
+  --text-primary:        #F0EFE9;
+  --text-secondary:      #B8B5AD;
+  --text-tertiary:       #7A7770;
+  --text-disabled:       #524F4A;
+  --text-cta:            #FFFFFF;
+
+  --border-primary:      #363630;
+
+  /* ── Navbar ── */
+  --navbar-scrolled-bg:     rgba(20, 20, 18, 0.88);
+  /* Nav labels: bright off-white in dark theme */
+  --nav-label-rest-color:   #F0EFE9;
+  /* Icon button borders: bright off-white in dark theme */
+  --navbar-icon-btn-border: #F0EFE9;
+
+  /* ── Aurora tokens — dark variants ─────────────────────────────────────
+     Without `invert`, these show as direct color gradients on dark bg.
+     Shifted to richer purples/teals for a vivid dark aurora. */
+  --white:      transparent;          /* removes the "white stripe" layer   */
+  --blue-300:   #818cf8;              /* indigo-400                          */
+  --blue-400:   #6366f1;              /* indigo-500                          */
+  --blue-500:   #4f46e5;              /* indigo-600                          */
+  --indigo-300: #a855f7;              /* purple-500                          */
+  --violet-200: #7c3aed;              /* violet-600                          */
+
+  /* ── shadcn tokens updated for dark ── */
+  --background:              #141412;
+  --foreground:              #F0EFE9;
+  --card:                    #222220;
+  --card-foreground:         #F0EFE9;
+  --popover:                 #222220;
+  --popover-foreground:      #F0EFE9;
+  --primary:                 #F0EFE9;
+  --primary-foreground:      #141412;
+  --secondary:               #1C1C19;
+  --secondary-foreground:    #F0EFE9;
+  --muted:                   #1C1C19;
+  --muted-foreground:        #7A7770;
+  --accent:                  #1A2028;
+  --accent-foreground:       #F0EFE9;
+  --destructive:             oklch(0.704 0.191 22.216);
+  --border:                  #363630;
+  --input:                   #363630;
+  --ring:                    #7A7770;
+  --sidebar:                 #1C1C19;
+  --sidebar-foreground:      #F0EFE9;
+  --sidebar-primary:         #6B7FD4;
+  --sidebar-primary-foreground: #F0EFE9;
+  --sidebar-accent:          #1A2028;
+  --sidebar-accent-foreground: #F0EFE9;
+  --sidebar-border:          #363630;
+  --sidebar-ring:            #7A7770;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Smooth color transitions when toggling theme */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ─── Aurora dark-mode overrides ─────────────────────────────────────────
+   The .aurora-inner class is added to the animated gradient div inside
+   aurora-background.tsx. In dark mode we:
+     1. Remove the `invert` filter (colours show directly on dark bg)
+     2. Boost opacity slightly for visibility
+     3. Switch the after-layer blend to `screen` (better on dark bg) */
+/* ─── Navbar icon dark-mode filters ─────────────────────────────────────
+   Fix 1c — Accessibility icon + dropdown arrow: near-white (#F0EFE9) in dark.
+   brightness(0) normalises any source colour to black first, then invert(1)
+   flips it to white — visually indistinguishable from #F0EFE9.             */
+[data-theme="dark"] .navbar-a11y-img {
+  filter: brightness(0) invert(1);
+}
+
+/* Fix 1d — Sun icon: amber #F59E0B in dark theme.
+   brightness(0) → black, then sepia+hue-rotate+saturate shifts to amber.  */
+[data-theme="dark"] .navbar-sun-img {
+  filter: brightness(0) saturate(100%) invert(68%) sepia(79%)
+          saturate(998%) hue-rotate(2deg) brightness(104%) contrast(98%);
+}
+
+[data-theme="dark"] .aurora-inner {
+  filter: blur(10px);
+  opacity: 0.65;
+}
+
+[data-theme="dark"] .aurora-inner::after {
+  mix-blend-mode: screen;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --animate-aurora: aurora 60s linear infinite;
+
+  @keyframes aurora {
+    from {
+      background-position: 50% 50%, 50% 50%;
+    }
+    to {
+      background-position: 350% 50%, 350% 50%;
+    }
+  }
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Respect prefers-reduced-motion for all transition/animation properties */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
