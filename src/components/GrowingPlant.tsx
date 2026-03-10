@@ -3,8 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
-const STAGE_KEY = "plant_stage";
-const VISIT_KEY = "plant_visits";
+const MANUAL_STAGE_KEY = "plant_stage_manual";
+const VISIT_KEY = "visit_count";
 const MAX_STAGE = 5;
 
 type Droplet = { id: number; x: number; delay: number };
@@ -177,24 +177,29 @@ const stageLabels = [
 
 /* ── Main component ─────────────────────────────────────────────────── */
 export default function GrowingPlant() {
-  const [stage, setStage]     = useState(1);
-  const [visits, setVisits]   = useState(1);
-  const [watering, setWatering] = useState(false);
-  const [droplets, setDroplets] = useState<Droplet[]>([]);
+  const [stage, setStage]           = useState(1);
+  const [manualStage, setManualStage] = useState(1);
+  const [visits, setVisits]         = useState(1);
+  const [watering, setWatering]     = useState(false);
+  const [droplets, setDroplets]     = useState<Droplet[]>([]);
   const reduceMotion = useReducedMotion();
 
-  /* Read localStorage on mount */
+  /* Read localStorage on mount — increment visit count, compute displayed stage */
   useEffect(() => {
-    const v = parseInt(localStorage.getItem(VISIT_KEY) ?? "0", 10);
-    const newVisits = (isNaN(v) ? 0 : v) + 1;
+    const rawVisits = parseInt(localStorage.getItem(VISIT_KEY) ?? "0", 10);
+    const newVisits = (isNaN(rawVisits) ? 0 : rawVisits) + 1;
     localStorage.setItem(VISIT_KEY, String(newVisits));
     setVisits(newVisits);
 
-    const s = parseInt(localStorage.getItem(STAGE_KEY) ?? "1", 10);
-    setStage(isNaN(s) ? 1 : Math.min(Math.max(s, 1), MAX_STAGE));
+    const rawManual = parseInt(localStorage.getItem(MANUAL_STAGE_KEY) ?? "1", 10);
+    const manual = isNaN(rawManual) ? 1 : Math.min(Math.max(rawManual, 1), MAX_STAGE);
+    setManualStage(manual);
+
+    const autoStage = Math.min(newVisits, MAX_STAGE);
+    setStage(Math.max(autoStage, manual));
   }, []);
 
-  /* Water / grow */
+  /* Water / grow — advances manual stage */
   const handleWater = useCallback(() => {
     if (watering || stage >= MAX_STAGE) return;
     setWatering(true);
@@ -209,25 +214,30 @@ export default function GrowingPlant() {
     }
 
     setTimeout(() => {
-      setStage((prev) => {
-        const next = Math.min(prev + 1, MAX_STAGE);
-        localStorage.setItem(STAGE_KEY, String(next));
-        return next;
-      });
+      const nextManual = Math.min(manualStage + 1, MAX_STAGE);
+      localStorage.setItem(MANUAL_STAGE_KEY, String(nextManual));
+      const autoStage = Math.min(visits, MAX_STAGE);
+      setManualStage(nextManual);
+      setStage(Math.max(autoStage, nextManual));
       setDroplets([]);
       setWatering(false);
     }, reduceMotion ? 50 : 700);
-  }, [watering, stage, reduceMotion]);
+  }, [watering, stage, reduceMotion, manualStage, visits]);
 
-  /* Reset */
+  /* Reset — clears visit count and manual stage */
   const handleReset = useCallback(() => {
-    localStorage.removeItem(STAGE_KEY);
-    localStorage.removeItem(VISIT_KEY);
-    setStage(1);
+    localStorage.setItem(VISIT_KEY, "0");
+    localStorage.setItem(MANUAL_STAGE_KEY, "1");
     setVisits(1);
+    setManualStage(1);
+    setStage(1);
     setDroplets([]);
     setWatering(false);
   }, []);
+
+  /* Visit display: capped at MAX_STAGE, zero-padded (e.g. "01/05") */
+  const visitDisplay = String(Math.min(visits, MAX_STAGE)).padStart(2, "0");
+  const maxDisplay   = String(MAX_STAGE).padStart(2, "0");
 
   return (
     <div
@@ -243,7 +253,7 @@ export default function GrowingPlant() {
           color: "var(--text-tertiary)",
         }}
       >
-        visit #{visits}
+        visit {visitDisplay}/{maxDisplay}
       </p>
 
       {/* Stage indicator */}

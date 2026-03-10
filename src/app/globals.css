@@ -29,6 +29,9 @@
 
   --border-primary:      #D3D3D3;
 
+  /* ── Accessibility toggle ── */
+  --a11y-toggle-off:     #CCCCCC;
+
   /* ── Navbar ── */
   --navbar-scrolled-bg:     rgba(255, 255, 255, 0.88);
   /* Nav link rest color (non-hovered) */
@@ -105,12 +108,15 @@
 
   --border-primary:      #363630;
 
+  /* ── Accessibility toggle ── */
+  --a11y-toggle-off:     #444440;
+
   /* ── Navbar ── */
   --navbar-scrolled-bg:     rgba(20, 20, 18, 0.88);
   /* Nav labels: bright off-white in dark theme */
   --nav-label-rest-color:   #F0EFE9;
-  /* Icon button borders: bright off-white in dark theme */
-  --navbar-icon-btn-border: #F0EFE9;
+  /* FIX 5: Icon button borders: #D3D3D3 in dark theme (matches light --border-primary) */
+  --navbar-icon-btn-border: #D3D3D3;
 
   /* ── Aurora tokens — dark variants ─────────────────────────────────────
      Without `invert`, these show as direct color gradients on dark bg.
@@ -182,11 +188,10 @@ body {
   filter: brightness(0) invert(1);
 }
 
-/* Fix 1d — Sun icon: amber #F59E0B in dark theme.
-   brightness(0) → black, then sepia+hue-rotate+saturate shifts to amber.  */
+/* Fix 1d — Sun icon: #D3D3D3 in dark theme.
+   brightness(0) → black, invert(1) → white, brightness(0.83) → ~#D4D4D4 ≈ #D3D3D3. */
 [data-theme="dark"] .navbar-sun-img {
-  filter: brightness(0) saturate(100%) invert(68%) sepia(79%)
-          saturate(998%) hue-rotate(2deg) brightness(104%) contrast(98%);
+  filter: brightness(0) invert(1) brightness(0.83);
 }
 
 [data-theme="dark"] .aurora-inner {
@@ -273,4 +278,115 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ─── No horizontal scroll at any viewport ──────────────────────────────── */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* ─── Scroll-margin so sticky navbar doesn't hide section headings ───────── */
+[id] {
+  scroll-margin-top: 80px;
+}
+
+/* ─── All images / SVGs scale with their container ──────────────────────── */
+img, svg {
+  max-width: 100%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ACCESSIBILITY FEATURE OVERRIDES
+   Applied via JS: document.documentElement.classList.add("a11y-*")
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* High Contrast */
+.a11y-high-contrast {
+  --text-primary:   #000000;
+  --text-secondary: #222222;
+  --text-tertiary:  #444444;
+  --border-primary: #000000;
+  --bg-primary:     #FFFFFF;
+  --bg-secondary:   #F0F0F0;
+}
+[data-theme="dark"].a11y-high-contrast {
+  --text-primary:   #FFFFFF;
+  --text-secondary: #EEEEEE;
+  --text-tertiary:  #CCCCCC;
+  --border-primary: #FFFFFF;
+  --bg-primary:     #000000;
+  --bg-secondary:   #111111;
+}
+
+/* Large Text — increases base font size by 20% */
+.a11y-large-text {
+  font-size: 120% !important;
+}
+
+/* Reduce Transparency — removes backdrop-filter effects */
+.a11y-reduce-transparency * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Reduce Motion */
+.a11y-reduce-motion *,
+.a11y-reduce-motion *::before,
+.a11y-reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Dyslexia-Friendly Font — uses Lexend loaded via next/font */
+.a11y-dyslexia-font,
+.a11y-dyslexia-font * {
+  font-family: var(--font-lexend), 'Lexend', sans-serif !important;
+}
+
+/* Increased Line Spacing */
+.a11y-line-spacing,
+.a11y-line-spacing * {
+  line-height: 2.0 !important;
+}
+
+/* Screen Reader Labels — makes aria-labels visible as badges */
+.a11y-sr-labels [aria-label]:not(img):not(svg):not(button)::before {
+  content: attr(aria-label);
+  display: inline-block;
+  background: var(--accent-indigo);
+  color: #FFFFFF;
+  font-size: 10px;
+  font-family: var(--font-chivo-mono), monospace;
+  padding: 2px 6px;
+  border-radius: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* Tab Order — JS adds data-tab-order attributes to focusable elements */
+.a11y-tab-order [data-tab-order] {
+  position: relative !important;
+}
+.a11y-tab-order [data-tab-order]::after {
+  content: attr(data-tab-order);
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  background: var(--accent-amber);
+  color: #FFFFFF;
+  font-size: 10px;
+  font-family: var(--font-chivo-mono), monospace;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  pointer-events: none;
 }

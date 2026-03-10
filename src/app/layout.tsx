@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins, Chivo_Mono, Corinthia, Geist } from "next/font/google";
+import { Poppins, Chivo_Mono, Corinthia, Geist, Lexend } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -22,6 +22,12 @@ const corinthia = Corinthia({
   variable: "--font-corinthia",
   subsets: ["latin"],
   weight: ["400", "700"],
+});
+
+const lexend = Lexend({
+  variable: "--font-lexend",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -51,7 +57,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${poppins.variable} ${chivoMono.variable} ${corinthia.variable} antialiased`}
+        className={`${poppins.variable} ${chivoMono.variable} ${corinthia.variable} ${lexend.variable} antialiased`}
         style={{ fontFamily: "var(--font-poppins), sans-serif" }}
       >
         <ThemeProvider>{children}</ThemeProvider>

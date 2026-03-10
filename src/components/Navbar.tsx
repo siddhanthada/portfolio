@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Navbar,
   NavBody,
@@ -11,15 +11,15 @@ import {
   MobileNavToggle,
 } from "@/components/ui/resizable-navbar";
 import { useTheme } from "@/contexts/ThemeContext";
+import A11yDropdown from "@/components/A11yDropdown";
 
-// Assets (replace with hosted URLs before 7-day Figma expiry)
-const imgMyLogoUpdated  = "https://www.figma.com/api/mcp/asset/abb293d4-40d1-49e0-aa97-b0273d29691f";
-// Fix 1a — dark theme logo (local hosted SVG)
-const imgMyLogoDark     = "/assets/My Logo dark.svg";
-const imgSunIcon        = "https://www.figma.com/api/mcp/asset/41589f48-d868-40f3-8955-28fb77f3c5a0";
-const imgMoonIcon       = "https://www.figma.com/api/mcp/asset/df708931-c827-419d-8882-eebc67e9f137";
-const imgA11yIcon1      = "https://www.figma.com/api/mcp/asset/5b1dd8fa-9f83-4b1c-b6d5-696513173738";
-const imgA11yIcon2      = "https://www.figma.com/api/mcp/asset/19169aec-9b40-471a-bfd3-9d512ce41f4d";
+// Local SVG assets (placed in /public/assets/ before deploy)
+const imgMyLogoDark = "/assets/My Logo dark.svg";
+const imgMyLogoLight = "https://www.figma.com/api/mcp/asset/abb293d4-40d1-49e0-aa97-b0273d29691f";
+
+// Fix 4: Use local SVGs for moon/sun icons
+const imgMoonIcon = "/assets/moon icon.svg";
+const imgSunIcon  = "/assets/sun icon.svg";
 
 const navItems = [
   { name: "Work",    link: "#work"    },
@@ -28,45 +28,188 @@ const navItems = [
   { name: "Contact", link: "#contact" },
 ];
 
+/** Fix 7: smooth scroll to section, offset by navbar height */
+function scrollToSection(id: string) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const navbarHeight = 80;
+  const top = el.getBoundingClientRect().top + window.scrollY - navbarHeight;
+  window.scrollTo({ top, behavior: "smooth" });
+}
+
+// Standalone component — each instance (desktop + mobile) owns its state independently
+function A11yControls() {
+  const [a11yOpen, setA11yOpen] = useState(false);
+  const a11yPanelRef = useRef<HTMLDivElement>(null);
+  const a11yButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (!a11yOpen) return;
+      const clickedInsidePanel = a11yPanelRef.current?.contains(e.target as Node);
+      const clickedButton = a11yButtonRef.current?.contains(e.target as Node);
+      if (!clickedInsidePanel && !clickedButton) {
+        setA11yOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [a11yOpen]);
+
+  useEffect(() => {
+    if (!a11yOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setA11yOpen(false);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [a11yOpen]);
+
+  const handleA11yButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setA11yOpen((prev) => !prev);
+  };
+
+  return (
+    <div className="relative">
+      <button
+        ref={a11yButtonRef}
+        onClick={handleA11yButtonClick}
+        className="inline-flex items-center justify-center hover:opacity-80 transition-opacity"
+        style={{
+          padding: "10px",
+          gap: "4px",
+          border: "1px solid var(--navbar-icon-btn-border)",
+          background: "none",
+          cursor: "pointer",
+          flexShrink: 0,
+          height: "40px",
+        }}
+        aria-label="Accessibility options"
+        aria-expanded={a11yOpen}
+        aria-haspopup="true"
+      >
+        <img
+          src="/assets/accessibility icon.svg"
+          alt=""
+          width={20}
+          height={20}
+          className="navbar-a11y-img"
+          style={{ flexShrink: 0 }}
+        />
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          fill="none"
+          style={{
+            color: "var(--text-primary)",
+            flexShrink: 0,
+            transition: "transform 200ms",
+            transform: a11yOpen ? "rotate(180deg)" : "rotate(0deg)",
+          }}
+        >
+          <path
+            d="M3 4.5L6 7.5L9 4.5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      <A11yDropdown isOpen={a11yOpen} panelRef={a11yPanelRef} />
+    </div>
+  );
+}
+
+// Standalone theme toggle with spin-fade animation
+function ThemeToggle() {
+  const { isDark, toggleTheme } = useTheme();
+  const [displayDark, setDisplayDark] = useState(isDark);
+  const [iconStyle, setIconStyle] = useState<{
+    transform: string;
+    opacity: number;
+    transition?: string;
+  }>({ transform: "rotate(0deg)", opacity: 1 });
+  const animatingRef = useRef(false);
+
+  // Sync display state if theme changes externally (e.g. SSR hydration)
+  useEffect(() => {
+    if (!animatingRef.current) setDisplayDark(isDark);
+  }, [isDark]);
+
+  const handleClick = () => {
+    if (animatingRef.current) return;
+    animatingRef.current = true;
+
+    // Phase 1: spin current icon out
+    setIconStyle({
+      transform: "rotate(180deg)",
+      opacity: 0,
+      transition: "transform 180ms ease-in, opacity 180ms ease-in",
+    });
+
+    setTimeout(() => {
+      // Midpoint: swap icon + theme, snap new icon to entry position (no transition)
+      setDisplayDark((prev) => !prev);
+      toggleTheme();
+      setIconStyle({ transform: "rotate(-180deg)", opacity: 0, transition: "none" });
+
+      // Double rAF forces DOM to paint the snap state before animating in
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Phase 2: spin new icon in
+          setIconStyle({
+            transform: "rotate(0deg)",
+            opacity: 1,
+            transition: "transform 180ms ease-out, opacity 180ms ease-out",
+          });
+          setTimeout(() => { animatingRef.current = false; }, 180);
+        });
+      });
+    }, 180);
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      className="inline-flex items-center justify-center hover:opacity-80 transition-opacity"
+      style={{
+        padding: "10px",
+        border: "1px solid var(--navbar-icon-btn-border)",
+        background: "none",
+        cursor: "pointer",
+        position: "relative",
+        width: "40px",
+        height: "40px",
+        flexShrink: 0,
+      }}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      <img
+        src={displayDark ? imgSunIcon : imgMoonIcon}
+        alt=""
+        className={displayDark ? "navbar-sun-img" : ""}
+        style={{ position: "absolute", width: "20px", height: "20px", ...iconStyle }}
+      />
+    </button>
+  );
+}
+
 export default function PortfolioNavbar() {
   const { isDark, toggleTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Inline Controls — rendered in both desktop and mobile header
   const Controls = () => (
-    <div
-      className="flex items-center gap-3 shrink-0"
-      style={{ width: "171px", justifyContent: "flex-end" }}
-    >
-      {/* Theme toggle — shows sun in dark mode (click → light), moon in light (click → dark) */}
-      <button
-        onClick={toggleTheme}
-        className="w-[40px] h-[40px] flex items-center justify-center border hover:opacity-80 transition-opacity"
-        style={{ borderColor: "var(--navbar-icon-btn-border)" }}
-        title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      >
-        <div className="relative shrink-0 w-5 h-5">
-          <img
-            src={isDark ? imgSunIcon : imgMoonIcon}
-            alt=""
-            className={`absolute block w-full h-full${isDark ? " navbar-sun-img" : ""}`}
-          />
-        </div>
-      </button>
+    <div className="flex items-center shrink-0" style={{ gap: "12px" }}>
 
-      {/* Accessibility */}
-      <div
-        className="flex items-center justify-center gap-1 border"
-        style={{ borderColor: "var(--navbar-icon-btn-border)", padding: "10px" }}
-        title="Accessibility options"
-      >
-        <div className="relative shrink-0 w-5 h-5">
-          {/* Fix 1c — navbar-a11y-img gets brightness(0) invert(1) filter in dark mode */}
-          <img src={imgA11yIcon1} alt="" className="absolute block w-full h-full navbar-a11y-img" />
-        </div>
-        <div className="relative shrink-0 w-5 h-5">
-          <img src={imgA11yIcon2} alt="" className="absolute block w-full h-full navbar-a11y-img" />
-        </div>
-      </div>
+      <ThemeToggle />
+
+      {/* Accessibility — self-contained per instance */}
+      <A11yControls />
     </div>
   );
 
@@ -74,18 +217,23 @@ export default function PortfolioNavbar() {
     <Navbar>
       {/* ── Desktop ── */}
       <NavBody>
-        {/* Logo — 51px tall, sets natural nav height at rest */}
-        {/* Fix 1a — swap to dark logo SVG in dark theme */}
         <div className="shrink-0 h-[51px] w-[171px]">
           <img
-            src={isDark ? imgMyLogoDark : imgMyLogoUpdated}
+            src={isDark ? imgMyLogoDark : imgMyLogoLight}
             alt="Siddhant.design"
             className="h-full w-full object-contain object-left"
           />
         </div>
 
-        {/* Nav links — Aceternity layoutId hover animation, portfolio fonts */}
-        <NavItems items={navItems} />
+        {/* Fix 7: Use onItemClick with e.preventDefault + JS scroll */}
+        <NavItems
+          items={navItems}
+          onItemClick={(e, item) => {
+            e.preventDefault();
+            const id = item.link.replace("#", "");
+            scrollToSection(id);
+          }}
+        />
 
         <Controls />
       </NavBody>
@@ -93,10 +241,9 @@ export default function PortfolioNavbar() {
       {/* ── Mobile ── */}
       <MobileNav>
         <MobileNavHeader>
-          {/* Fix 1a — mobile: swap to dark logo SVG in dark theme */}
           <div className="shrink-0 h-[36px] w-[121px]">
             <img
-              src={isDark ? imgMyLogoDark : imgMyLogoUpdated}
+              src={isDark ? imgMyLogoDark : imgMyLogoLight}
               alt="Siddhant.design"
               className="h-full w-full object-contain object-left"
             />
@@ -114,20 +261,27 @@ export default function PortfolioNavbar() {
           isOpen={isMobileMenuOpen}
           onClose={() => setIsMobileMenuOpen(false)}
         >
+          {/* Fix 7: mobile links use JS scroll + close menu */}
           {navItems.map((item) => (
-            <a
+            <button
               key={item.name}
-              href={item.link}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="w-full py-2 uppercase text-[14px]"
+              onClick={() => {
+                const id = item.link.replace("#", "");
+                scrollToSection(id);
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full py-2 uppercase text-[14px] text-left"
               style={{
                 fontFamily: "var(--font-chivo-mono), monospace",
                 fontWeight: 400,
                 color: "var(--text-tertiary)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
               }}
             >
               {item.name}
-            </a>
+            </button>
           ))}
         </MobileNavMenu>
       </MobileNav>

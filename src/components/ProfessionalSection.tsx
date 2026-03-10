@@ -1,9 +1,9 @@
 // Skill icons from Figma
-const imgFrame88 = "https://www.figma.com/api/mcp/asset/195164d3-3532-4646-b540-8c3d00efaffc"; // Systems Design
-const imgFrame89 = "https://www.figma.com/api/mcp/asset/1072da87-3418-4420-b7be-f89875e8ee55"; // AI in design
-const imgFrame90 = "https://www.figma.com/api/mcp/asset/76fd12f8-b4cf-4046-b3b0-f550b7ad1d96"; // Data-Heavy UX
-const imgFrame91 = "https://www.figma.com/api/mcp/asset/da26cdd3-6164-4095-96b1-a50012244d8f"; // Accessibility
-const imgFrame92 = "https://www.figma.com/api/mcp/asset/1fa7956f-72c9-4183-a4d8-41b1bf314143"; // Cross-functional
+const imgFrame88 = "https://www.figma.com/api/mcp/asset/195164d3-3532-4646-b540-8c3d00efaffc";
+const imgFrame89 = "https://www.figma.com/api/mcp/asset/1072da87-3418-4420-b7be-f89875e8ee55";
+const imgFrame90 = "https://www.figma.com/api/mcp/asset/76fd12f8-b4cf-4046-b3b0-f550b7ad1d96";
+const imgFrame91 = "https://www.figma.com/api/mcp/asset/da26cdd3-6164-4095-96b1-a50012244d8f";
+const imgFrame92 = "https://www.figma.com/api/mcp/asset/1fa7956f-72c9-4183-a4d8-41b1bf314143";
 
 type Skill = {
   icon: string;
@@ -11,7 +11,7 @@ type Skill = {
   description: React.ReactNode;
 };
 
-const row1: Skill[] = [
+const skills: Skill[] = [
   {
     icon: imgFrame88,
     title: "Systems Design",
@@ -46,9 +46,6 @@ const row1: Skill[] = [
       </>
     ),
   },
-];
-
-const row2: Skill[] = [
   {
     icon: imgFrame91,
     title: "Accessibility",
@@ -74,29 +71,31 @@ const row2: Skill[] = [
 function SkillCard({ icon, title, description }: Skill) {
   return (
     <div
-      className="flex flex-col items-start self-stretch gap-5 hover:bg-[var(--bg-secondary)] transition-colors duration-200"
-      style={{ flex: "1 0 0", padding: "24px" }}
+      className="flex flex-col items-start gap-5 hover:bg-[var(--bg-secondary)] transition-colors duration-200 min-w-0"
+      style={{ padding: "24px" }}
     >
       <div className="w-[30px] h-[30px] shrink-0 overflow-hidden">
         <img src={icon} alt={title} className="w-full h-full object-contain" />
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 min-w-0">
         <p
-          className="text-[16px]"
+          className="text-[16px] overflow-hidden"
           style={{
             fontFamily: "var(--font-poppins), sans-serif",
             fontWeight: 500,
             color: "var(--text-primary)",
+            wordBreak: "break-word",
           }}
         >
           {title}
         </p>
         <p
-          className="text-[16px] leading-normal"
+          className="text-[16px] leading-normal overflow-hidden"
           style={{
             fontFamily: "var(--font-poppins), sans-serif",
             fontWeight: 400,
             color: "var(--text-secondary)",
+            wordBreak: "break-word",
           }}
         >
           {description}
@@ -108,7 +107,7 @@ function SkillCard({ icon, title, description }: Skill) {
 
 export default function ProfessionalSection() {
   return (
-    <section className="w-full max-w-[1440px] mx-auto px-[185px]">
+    <section className="w-full max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-[185px]">
       <h2
         className="text-[24px] mb-6"
         style={{
@@ -120,22 +119,11 @@ export default function ProfessionalSection() {
         Professional
       </h2>
 
-      <div className="flex flex-col self-stretch" style={{ gap: "12px" }}>
-        {/* Row 1 */}
-        <div className="flex items-start self-stretch">
-          {row1.map((skill) => (
-            <SkillCard key={skill.title} {...skill} />
-          ))}
-        </div>
-
-        {/* Row 2 */}
-        <div className="flex items-start self-stretch">
-          {row2.map((skill) => (
-            <SkillCard key={skill.title} {...skill} />
-          ))}
-          {/* Empty third column to maintain alignment */}
-          <div style={{ flex: "1 0 0" }} />
-        </div>
+      {/* Fix 2: 2-col on mobile, 3-col on lg+ */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+        {skills.map((skill) => (
+          <SkillCard key={skill.title} {...skill} />
+        ))}
       </div>
     </section>
   );

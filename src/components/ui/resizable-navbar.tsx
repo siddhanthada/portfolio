@@ -28,7 +28,7 @@ interface NavItemsProps {
     link: string;
   }[];
   className?: string;
-  onItemClick?: () => void;
+  onItemClick?: (e: React.MouseEvent<HTMLAnchorElement>, item: { name: string; link: string }) => void;
 }
 
 interface MobileNavProps {
@@ -66,7 +66,7 @@ export const Navbar = ({ children, className }: NavbarProps) => {
     <motion.div
       ref={ref}
       // IMPORTANT: Change this to class of `fixed` if you want the navbar to be fixed
-      className={cn("sticky inset-x-0 top-0 z-50 w-full", className)}
+      className={cn("fixed inset-x-0 top-0 z-50 w-full", className)}
     >
       {React.Children.map(children, (child) =>
         React.isValidElement(child)
@@ -105,8 +105,8 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
         width: visible ? "70%" : "100%",
         maxWidth: visible ? "1008px" : "1440px",
         y: visible ? 12 : 0,
-        paddingLeft: visible ? "20px" : "185px",
-        paddingRight: visible ? "20px" : "185px",
+        paddingLeft: visible ? "8px" : "185px",
+        paddingRight: visible ? "16px" : "185px",
         paddingTop: visible ? "8px" : "40px",
         paddingBottom: visible ? "8px" : "40px",
         borderRadius: "0px",
@@ -130,7 +130,7 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
     <div
       onMouseLeave={() => setHovered(null)}
       className={cn(
-        "hidden flex-1 flex-row items-center justify-center gap-2 lg:flex",
+        "hidden flex-row items-center justify-center gap-2 lg:flex absolute left-1/2 -translate-x-1/2",
         className
       )}
     >
@@ -139,7 +139,7 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
           key={`link-${idx}`}
           href={item.link}
           onMouseEnter={() => setHovered(idx)}
-          onClick={onItemClick}
+          onClick={(e) => onItemClick?.(e, item)}
           className="relative h-[40px] w-[100px] flex items-center justify-center uppercase text-[14px]"
           style={{
             fontFamily: "var(--font-chivo-mono), monospace",

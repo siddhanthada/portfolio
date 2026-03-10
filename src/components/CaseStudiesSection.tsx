@@ -67,13 +67,17 @@ function CaseStudyCard({
   return (
     <div
       ref={ref}
-      className="relative h-[403px] overflow-hidden w-full group"
-      style={{ background: "var(--bg-secondary)", cursor: reduceMotion ? "pointer" : "none" }}
+      className="group relative w-full overflow-hidden xl:h-[403px]"
+      style={{
+        background: "var(--bg-secondary)",
+        borderRadius: 0,
+        cursor: reduceMotion ? "pointer" : "none",
+      }}
       onMouseMove={onMouseMove}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* "View Project" custom cursor — spring-smooth, respects reduced-motion */}
+      {/* "View Project" custom cursor — unchanged */}
       {!reduceMotion && (
         <AnimatePresence>
           {hovered && (
@@ -103,76 +107,151 @@ function CaseStudyCard({
           )}
         </AnimatePresence>
       )}
-      {/* Floating preview image */}
-      <div className="absolute left-1/2 -translate-x-1/2 top-8 w-[547px] h-[316px] rounded-t-[6px] overflow-hidden">
-        <img
-          src={image}
-          alt={title}
-          className="w-full h-full object-cover object-top scale-110 group-hover:scale-105 transition-transform duration-500"
-        />
-      </div>
 
-      {/* Orange badge */}
+      {/* CASE STUDY amber badge — position: absolute, top-left */}
       <div
-        className="absolute top-4 left-4 px-2 py-1"
-        style={{ background: "var(--accent-amber)" }}
+        style={{
+          position: "absolute",
+          top: "16px",
+          left: "16px",
+          background: "#D97706",
+          padding: "4px",
+          width: "100px",
+          borderRadius: 0,
+          zIndex: 10,
+        }}
       >
         <span
-          className="text-[12px] uppercase tracking-wider"
           style={{
             fontFamily: "var(--font-chivo-mono), monospace",
             fontWeight: 400,
-            color: "var(--text-cta)",
+            fontSize: "12px",
+            color: "#FFFFFF",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            display: "block",
           }}
         >
           case study
         </span>
       </div>
 
-      {/* Bottom info overlay */}
+      {/*
+        Image area:
+          mobile (<768px)  — full width, 200px tall, in flow
+          tablet (768-1279px) — 547×316px, centered (mx-auto), in flow
+          desktop (>=1280px) — absolute: left 261px, top 32px, 547×316px
+      */}
       <div
-        className="absolute bottom-0 left-0 right-0 px-9 pt-12 pb-9"
+        className={[
+          "overflow-hidden w-full h-[200px]",
+          "md:mx-auto md:w-[547px] md:h-[316px]",
+          "xl:absolute xl:top-8 xl:left-[261px] xl:mx-0",
+        ].join(" ")}
+        style={{ borderRadius: "6px 6px 0 0" }}
+      >
+        <img
+          src={image}
+          alt={title}
+          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+        />
+      </div>
+
+      {/*
+        Bottom text panel:
+          mobile/tablet — in flow, below image
+          desktop (xl+) — absolute: bottom 0, left 0, full width
+        Gradient background goes from var(--bg-secondary) at bottom to transparent at top.
+      */}
+      <div
+        className="xl:absolute xl:bottom-0 xl:left-0 xl:w-full"
         style={{
-          background: "linear-gradient(1.82deg, var(--bg-secondary) 38%, transparent 131%)",
-          backdropFilter: "blur(4px)",
+          padding: "48px 36px 36px 36px",
+          background:
+            "linear-gradient(to top, var(--bg-secondary) 60%, transparent 100%)",
+          backdropFilter: "blur(15px)",
         }}
       >
-        <div className="flex gap-6 items-end">
-          {/* Title + description */}
-          <div className="flex flex-col gap-2 w-[428px] shrink-0">
-            <h3
-              className="text-[24px]"
-              style={{
-                fontFamily: "var(--font-poppins), sans-serif",
-                fontWeight: 500,
-                color: "var(--text-primary)",
-              }}
-            >
-              {title}
-            </h3>
-            <p
-              className="text-[16px] leading-snug"
+        {/*
+          Inner row:
+            mobile/tablet — flex column
+            desktop (xl+) — flex row, gap 24px, align-items flex-end
+        */}
+        <div
+          className="flex flex-col xl:flex-row xl:items-end"
+          style={{ gap: "24px", width: "100%" }}
+        >
+          {/* Left column: title + description — 428px on desktop, full width on mobile */}
+          <div
+            className="flex flex-col"
+            style={{ gap: "8px", minWidth: 0, flex: "0 0 auto" }}
+          >
+            <div style={{ width: "428px", maxWidth: "100%" }}>
+              <h3
+                style={{
+                  fontFamily: "var(--font-poppins), sans-serif",
+                  fontWeight: 500,
+                  fontSize: "24px",
+                  color: "var(--text-primary)",
+                  lineHeight: "1.3",
+                }}
+              >
+                {title}
+              </h3>
+            </div>
+            <div style={{ width: "428px", maxWidth: "100%" }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-poppins), sans-serif",
+                  fontWeight: 400,
+                  fontSize: "16px",
+                  color: "var(--text-secondary)",
+                  lineHeight: "1.5",
+                }}
+              >
+                {description}
+              </p>
+            </div>
+          </div>
+
+          {/* Right column: three metadata items — stacked on mobile, row on desktop */}
+          <div
+            className="flex flex-col sm:flex-row items-start sm:items-center"
+            style={{ gap: "16px" }}
+          >
+            <span
               style={{
                 fontFamily: "var(--font-poppins), sans-serif",
                 fontWeight: 400,
+                fontSize: "16px",
                 color: "var(--text-secondary)",
+                minWidth: "144px",
               }}
             >
-              {description}
-            </p>
-          </div>
-
-          {/* Metadata */}
-          <div
-            className="flex gap-12 items-center text-[16px]"
-            style={{
-              fontFamily: "var(--font-poppins), sans-serif",
-              color: "var(--text-secondary)",
-            }}
-          >
-            <p className="w-[144px]">{skills}</p>
-            <p className="w-20">{duration}</p>
-            <p className="w-[166px]">{impact}</p>
+              {skills}
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--font-poppins), sans-serif",
+                fontWeight: 400,
+                fontSize: "16px",
+                color: "var(--text-secondary)",
+                minWidth: "80px",
+              }}
+            >
+              {duration}
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--font-poppins), sans-serif",
+                fontWeight: 400,
+                fontSize: "16px",
+                color: "var(--text-secondary)",
+                minWidth: "166px",
+              }}
+            >
+              {impact}
+            </span>
           </div>
         </div>
       </div>
@@ -182,10 +261,16 @@ function CaseStudyCard({
 
 export default function CaseStudiesSection() {
   return (
-    <section className="w-full max-w-[1440px] mx-auto px-[185px] flex flex-col gap-[80px]">
-      {caseStudies.map((cs) => (
-        <CaseStudyCard key={cs.id} {...cs} />
-      ))}
+    /* Figma spec: max-width 1070px, centered, flex col, gap 80px, no section bg */
+    <section className="w-full">
+      <div
+        className="mx-auto px-4 sm:px-8 flex flex-col"
+        style={{ maxWidth: "1070px", gap: "80px" }}
+      >
+        {caseStudies.map((cs) => (
+          <CaseStudyCard key={cs.id} {...cs} />
+        ))}
+      </div>
     </section>
   );
 }
