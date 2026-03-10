@@ -153,7 +153,7 @@ function ToggleRow({
 
 interface A11yDropdownProps {
   isOpen: boolean;
-  panelRef?: React.RefObject<HTMLDivElement>;
+  panelRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export default function A11yDropdown({ isOpen, panelRef }: A11yDropdownProps) {

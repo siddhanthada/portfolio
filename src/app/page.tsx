@@ -20,11 +20,11 @@ export default function Home() {
 
       <div className="relative">
         <AuroraBackground
-  className="absolute left-0 w-full pointer-events-none"
-  style={{ top: "-131px", height: "calc(100% + 131px)", zIndex: 0 }}
->
-  <></> {/* empty children to satisfy the type */}
-</AuroraBackground>
+          className="absolute left-0 w-full pointer-events-none"
+          style={{ top: "-131px", height: "calc(100% + 131px)", zIndex: 0 }}
+        >
+          <></> {/* empty children to satisfy the type */}
+        </AuroraBackground>
         <div className="relative" style={{ zIndex: 1 }}>
           <HeroSection />
         </div>
